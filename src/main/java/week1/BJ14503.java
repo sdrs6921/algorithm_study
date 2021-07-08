@@ -93,8 +93,4 @@ public class BJ14503 {
     private static void printAnswer() {
         System.out.println(answer);
     }
-
-    private static int shiftLeft(int currentDirection) {
-        return (currentDirection + 1) % 4;
-    }
 }
