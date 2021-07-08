@@ -1,10 +1,8 @@
 package week1;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.StringTokenizer;
 
 class Robot {
@@ -25,9 +23,14 @@ class Robot {
 
 public class BJ14503 {
 
-    private static final int BLANK = 0;
+    private static final int DIRTY = 0;
     private static final int WALL = 1;
     private static final int CLEAN = 2;
+
+    private static final int[] LEFT_ROW = {0, 1, 0, -1};
+    private static final int[] LEFT_COL = {-1, 0, 1, 0};
+    private static final int[] BACK_ROW = {1, 0, -1, 0};
+    private static final int[] BACK_COL = {0, 1, 0, -1};
 
     private static int answer = 0;
     private static int[][] rooms;
@@ -36,11 +39,11 @@ public class BJ14503 {
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-
         init(br);
-        printAnswer(bw);
+        cleanRoom(robot);
+        printAnswer();
     }
+
 
     private static void init(BufferedReader br) throws IOException {
         StringTokenizer st = new StringTokenizer(br.readLine());
@@ -61,10 +64,34 @@ public class BJ14503 {
         br.close();
     }
 
-    private static void printAnswer(BufferedWriter bw) throws IOException {
-        bw.write(answer + "\n");
-        bw.flush();
-        bw.close();
+    private static void cleanRoom(Robot robot) {
+        System.out.println(robot.x + "," + robot.y + "," + robot.direction);
+        if (rooms[robot.x][robot.y] == DIRTY) {
+            rooms[robot.x][robot.y] = CLEAN;
+            answer++;
+        }
+
+        for (int i = 0; i < 4; i++) {
+            if (rooms[robot.x + LEFT_ROW[i]][robot.y + LEFT_COL[i]] == DIRTY) {
+                robot.x = robot.x + LEFT_ROW[i];
+                robot.y = robot.y + LEFT_COL[i];
+                robot.shiftLeft();
+                cleanRoom(robot);
+                return;
+            }
+
+            robot.shiftLeft();
+        }
+
+        if (rooms[robot.x + BACK_ROW[robot.direction]][robot.y + robot.direction] != WALL) {
+            robot.x = robot.x + BACK_ROW[robot.direction];
+            robot.y = robot.y + BACK_COL[robot.direction];
+            cleanRoom(robot);
+        }
+    }
+
+    private static void printAnswer() {
+        System.out.println(answer);
     }
 
     private static int shiftLeft(int currentDirection) {
