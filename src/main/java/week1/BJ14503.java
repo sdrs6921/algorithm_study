@@ -6,18 +6,18 @@ import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
 class Robot {
-    int x;
-    int y;
+    int row;
+    int col;
     int direction;
 
-    public Robot(int x, int y, int direction) {
-        this.x = x;
-        this.y = y;
+    public Robot(int row, int col, int direction) {
+        this.row = row;
+        this.col = col;
         this.direction = direction;
     }
 
     public void shiftLeft() {
-        direction = (direction + 1) % 4;
+        direction = (direction + 3) % 4;
     }
 }
 
@@ -27,10 +27,10 @@ public class BJ14503 {
     private static final int WALL = 1;
     private static final int CLEAN = 2;
 
-    private static final int[] LEFT_ROW = {0, 1, 0, -1};
+    private static final int[] LEFT_ROW = {0, -1, 0, 1};
     private static final int[] LEFT_COL = {-1, 0, 1, 0};
     private static final int[] BACK_ROW = {1, 0, -1, 0};
-    private static final int[] BACK_COL = {0, 1, 0, -1};
+    private static final int[] BACK_COL = {0, -1, 0, 1};
 
     private static int answer = 0;
     private static int[][] rooms;
@@ -65,27 +65,26 @@ public class BJ14503 {
     }
 
     private static void cleanRoom(Robot robot) {
-        System.out.println(robot.x + "," + robot.y + "," + robot.direction);
-        if (rooms[robot.x][robot.y] == DIRTY) {
-            rooms[robot.x][robot.y] = CLEAN;
+        if (rooms[robot.row][robot.col] == DIRTY) {
+            rooms[robot.row][robot.col] = CLEAN;
             answer++;
         }
 
         for (int i = 0; i < 4; i++) {
-            if (rooms[robot.x + LEFT_ROW[i]][robot.y + LEFT_COL[i]] == DIRTY) {
-                robot.x = robot.x + LEFT_ROW[i];
-                robot.y = robot.y + LEFT_COL[i];
+            if (rooms[robot.row + LEFT_ROW[robot.direction]][robot.col + LEFT_COL[robot.direction]] == DIRTY) {
+                robot.row = robot.row + LEFT_ROW[robot.direction];
+                robot.col = robot.col + LEFT_COL[robot.direction];
                 robot.shiftLeft();
                 cleanRoom(robot);
                 return;
             }
 
             robot.shiftLeft();
-        }
+    }
 
-        if (rooms[robot.x + BACK_ROW[robot.direction]][robot.y + robot.direction] != WALL) {
-            robot.x = robot.x + BACK_ROW[robot.direction];
-            robot.y = robot.y + BACK_COL[robot.direction];
+        if (rooms[robot.row + BACK_ROW[robot.direction]][robot.col + BACK_COL[robot.direction]] != WALL) {
+            robot.row = robot.row + BACK_ROW[robot.direction];
+            robot.col = robot.col + BACK_COL[robot.direction];
             cleanRoom(robot);
         }
     }
