@@ -21,30 +21,15 @@ public class BJ16234 {
     private static int map[][];
     private static boolean visited[][];
     private static int answer = 0;
+    private static int sum = 0;
+    private static boolean flag = false;
 
     public static void main(String[] args) throws IOException {
         init();
-        movePopulation();
+        bfs();
         printAnswer();
     }
 
-    private static void movePopulation() {
-        boolean flag = false;
-
-        for (int x = 0; x < N; x++) {
-            for (int y = 0; y < N; y++) {
-                if (bfs(new Point(x, y))) {
-                    flag = true;
-                }
-            }
-        }
-
-        if (flag) {
-            answer++;
-            visited = new boolean[N][N];
-            movePopulation();
-        }
-    }
 
     private static void init() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -65,43 +50,59 @@ public class BJ16234 {
         br.close();
     }
 
-    private static boolean bfs(Point point) {
-        int sum = 0;
-        List<Point> points = new ArrayList<>();
-        Queue<Point> queue = new LinkedList<>();
-        queue.offer(point);
-        visited[point.x][point.y] = true;
+    private static void bfs() {
+        boolean isMoved = false;
 
-        while (!queue.isEmpty()) {
-            Point cur = queue.poll();
-            points.add(new Point(cur.x, cur.y));
-            sum += map[cur.x][cur.y];
+        for (int x = 0; x < N; x++) {
+            for (int y  = 0; y < N; y++) {
+                if (!visited[x][y]) {
+                    List<Point> points = new ArrayList<>();
+                    Queue<Point> queue = new LinkedList<>();
+                    queue.offer(new Point(x, y));
+                    visited[x][y] = true;
+                    points.add(new Point(x, y));
+                    int sum = map[x][y];
 
-            for (int i = 0; i < 4; i++) {
-                int nextX = cur.x + dx[i];
-                int nextY = cur.y + dy[i];
+                    while (!queue.isEmpty()) {
+                        Point cur = queue.poll();
 
-                if (nextX < 0 || nextX >= N || nextY < 0 || nextY >= N || visited[nextX][nextY]) {
-                    continue;
-                }
+                        for (int i = 0; i < 4; i++) {
+                            int nextX = cur.x + dx[i];
+                            int nextY = cur.y + dy[i];
 
-                int difference = Math.abs(map[cur.x][cur.y] - map[nextX][nextY]);
+                            if (nextX < 0 || nextX >= N || nextY < 0 || nextY >= N || visited[nextX][nextY]) {
+                                continue;
+                            }
 
-                if (difference >= L && difference <= R) {
-                    visited[nextX][nextY] = true;
-                    queue.offer(new Point(nextX, nextY));
+                            int difference = Math.abs(map[cur.x][cur.y] - map[nextX][nextY]);
+
+                            if (L <= difference && difference <= R) {
+                                queue.offer(new Point(nextX, nextY));
+                                points.add(new Point(nextX, nextY));
+                                visited[nextX][nextY] = true;
+                                isMoved = true;
+                                sum += map[nextX][nextY];
+                            }
+                        }
+
+                    }
+
+                    if (points.size() != 1) {
+                        int average = sum / points.size();
+
+                        for (Point point : points) {
+                            map[point.x][point.y] = average;
+                        }
+                    }
                 }
             }
         }
 
-        if (points.size() != 1) {
-            int average = sum / points.size();
-            for (Point p : points) {
-                map[p.x][p.y] = average;
-            }
-            return true;
+        if (isMoved) {
+            answer++;
+            visited = new boolean[N][N];
+            bfs();
         }
-        return false;
     }
 
     private static void printAnswer() throws IOException {
